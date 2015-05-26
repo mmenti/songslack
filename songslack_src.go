@@ -118,6 +118,9 @@ func main() {
 			}
 			if len(sItem) == 0 {
 				err := client.SendMessage("#gigs", fmt.Sprintf("I'm going to %s %s", v.DisplayName, v.URI), u.SlackUsername)
+				if err != nil {
+					panic(err)
+				}
 				// add the item to sdb
 				newItem := sdb.ItemName(sdb_key)
 				upd := make([]sdb.PutUpdate, 1, 1)
