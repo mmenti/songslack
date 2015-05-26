@@ -12,13 +12,12 @@ import (
 )
 
 var (
-	client *slack.Client
+	client            *slack.Client
+	songkick_api_key  = "YOUR SONGKICK API KEY"
+	slack_api_key     = "YOUR SLACK API KEY"
+	aws_access_key    = "YOUR AMAZON WEB SERVICES ACCESS KEY"
+	aws_access_secret = "YOUR AMAZON WEB SERVICES SECRET"
 )
-
-var songkick_api_key = "YOUR SONGKICK API KEY"
-var slack_api_key = "YOUR SLACK API KEY"
-var aws_access_key = "YOUR AMAZON WEB SERVICES ACCESS KEY"
-var aws_access_secret = "YOUR AMAZON WEB SERVICES SECRET"
 
 func main() {
 
