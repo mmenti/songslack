@@ -6,7 +6,7 @@ It's probably awful, since it's the first thing I've ever written in Go, with no
 
 This example uses Amazon's SimpleDB to store previously posted events, but you could of course replace this to support whatever datastore you wish to use.
 
-I just add it to a cron job to regurlarly check for new event updates.
+I just add it to a cron job to regularly check for new event updates.
 
 On Slack, it will look something like this, whenever someone clicks "I'm going" or "I'm interested" for a Songkick event:
 
