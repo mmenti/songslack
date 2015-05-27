@@ -8,7 +8,7 @@ This example uses Amazon's SimpleDB to store previously posted events, but you c
 
 I just add it to a cron job to regularly check for new event updates.
 
-On Slack, it will look something like this, whenever someone clicks "I'm going" or "I'm interested" for a Songkick event:
+It was originally writen for our own use in a music-oriented Slack team that happens to contain a lot of Songkick users, so we can easily see who is going to which shows (to keep it less noisy, we set up a separate #gigs channel for this). On Slack, it will look something like this, whenever someone clicks "I'm going" or "I'm interested" for a Songkick event:
 
 <img src="https://www.evernote.com/shard/s1/sh/a59c9a75-fa60-4a6d-a1c7-f5c8a5ae813c/dd71a6061fe429cc/res/3f7ffde9-ea9b-4f41-a942-abe3348f1f99/skitch.png"/>
 
