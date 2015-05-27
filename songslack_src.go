@@ -107,6 +107,7 @@ func main() {
 			panic(err)
 		}
 
+		jsonData = jsonRoot{}
 		err = json.Unmarshal(body_byte, &jsonData)
 
 		for _, v := range jsonData.ResultsPage.ResultData.EventData {
