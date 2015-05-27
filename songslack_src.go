@@ -1,3 +1,5 @@
+// simple golang program to process Songkick "interested"/"going" events and post them to a given Slack channel
+
 package main
 
 import (
@@ -17,6 +19,7 @@ var (
 	slack_api_key     = "YOUR SLACK API KEY"
 	aws_access_key    = "YOUR AMAZON WEB SERVICES ACCESS KEY"
 	aws_access_secret = "YOUR AMAZON WEB SERVICES SECRET"
+	slack_channel     = "#gigs" // the name of the slack channel you want to post your Songkick events to
 )
 
 func main() {
@@ -45,11 +48,14 @@ func main() {
 
 	// add your Songkick and Slack usernames here
 	// we check for new events for each Songkick user
-	// and post it to the #gigs Slack channel for the corresponding Slack user
+	// and post it to the a Slack channel for the corresponding Slack user
+	// (manually specified in this example, you could of course read this from elsewhere)
 	users := make([]SongSlackUser, 2, 2)
 	users[0] = SongSlackUser{"songkick_username_1", "slack_username_1"}
 	users[1] = SongSlackUser{"songkick_username_2", "slack_username_2"}
 
+	// connect to SimpleDB, to store previously posted events
+	// you could replace this with the datastore of your choice
 	mysdb, _ := sdb.NewSimpleDB(sdb.RegionEuIreland, awsKey)
 	// the domain that we want to use with simple db to store our data
 	myDomain, _ := mysdb.OpenDomain("songslack")
@@ -58,7 +64,7 @@ func main() {
 
 	for _, u := range users {
 
-		// interested in
+		// check "I'm interested in" Songkick events for each user
 		request_url := "http://api.songkick.com/api/3.0/users/" + u.SongkickUsername + "/events.json?apikey=" + songkick_api_key + "&attendance=i_might_go"
 		rsp, err := http.Get(request_url)
 		if err != nil {
@@ -79,8 +85,9 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
+			// if no match, hasn't been posted before so lets send it to Slack
 			if len(sItem) == 0 {
-				err := client.SendMessage("#gigs", fmt.Sprintf("I'm interested in %s %s", v.DisplayName, v.URI), u.SlackUsername)
+				err := client.SendMessage(slack_channel, fmt.Sprintf("I'm interested in %s %s", v.DisplayName, v.URI), u.SlackUsername)
 				if err != nil {
 					panic(err)
 				}
@@ -95,7 +102,7 @@ func main() {
 			}
 		}
 
-		// going
+		// check "I'm going" Songkick events for each user
 		request_url = "http://api.songkick.com/api/3.0/users/" + u.SongkickUsername + "/events.json?apikey=" + songkick_api_key
 		rsp, err = http.Get(request_url)
 		if err != nil {
@@ -116,8 +123,9 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
+			// if no match, hasn't been posted before so lets send it to Slack
 			if len(sItem) == 0 {
-				err := client.SendMessage("#gigs", fmt.Sprintf("I'm going to %s %s", v.DisplayName, v.URI), u.SlackUsername)
+				err := client.SendMessage(slack_channel, fmt.Sprintf("I'm going to %s %s", v.DisplayName, v.URI), u.SlackUsername)
 				if err != nil {
 					panic(err)
 				}
