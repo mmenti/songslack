@@ -1,3 +1,5 @@
+// simple golang program to process Songkick "interested"/"going" events and post them to a given Slack channel
+
 package main
 
 import (
