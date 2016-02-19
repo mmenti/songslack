@@ -193,7 +193,6 @@ func postToSlack(username string, attendanceType string, songkickEvent Event) er
 		Short: true})
 
 	err := slackClient.ChatPostMessage(slackChannel.Id, message, &slack.ChatPostMessageOpt{
-		AsUser:   true,
 		Username: username,
 		Attachments: []*slack.Attachment{
 			{
