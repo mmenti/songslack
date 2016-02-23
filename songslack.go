@@ -44,11 +44,11 @@ var (
 	slackChannel *slack.Channel
 
 	// AWS
-	mysdb             sdb.SimpleDB
-	myDomain          sdb.Domain
+	mysdb           sdb.SimpleDB
+	myDomain        sdb.Domain
 	awsAccessKey    = os.Getenv("AWS_KEY")
 	awsAccessSecret = os.Getenv("AWS_SECRET")
-	sdbKeyFormats = map[string]string{
+	sdbKeyFormats   = map[string]string{
 		songkick.AttendanceImGoing:  "%s-going-%d",
 		songkick.AttendanceIMightGo: "%s-tracking-%d"}
 
