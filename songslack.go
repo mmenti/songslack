@@ -5,12 +5,13 @@
 	Run with the following environment variables set:
 
 	SONGKICK_API_KEY=   your songkick api key
+	LASTFM_API_KEY=			your lastfm api key
 	SLACK_API_KEY=			your slack api token
 	SLACK_CHANNEL_NAME= the name of the slack channel you want to post your Songkick events to
 	AWS_KEY=						your amazon web services access key
 	AWS_SECRET=         your amazon web services secret
 
-	to specify a pair of usernames to do a dry-run of posts with, set
+	to specify a pair of usernames to do a dry-run (skipping database bits, always posting to Slack) set these:
 	DRY_RUN_SLACK_USER=
 	DRY_RUN_SONGKICK_USER=
 */
@@ -22,6 +23,7 @@ import (
 	"github.com/jacobsa/aws"
 	"github.com/jacobsa/aws/sdb"
 
+	"songslack/lastfm"
 	"songslack/songkick"
 
 	"fmt"
@@ -103,6 +105,7 @@ func main() {
 
 			jsonData := songkick.RequestUserEvents(u.SongkickUsername, attendanceType)
 
+			// go over each event in the calendar results
 			for _, songkickEvent := range jsonData.ResultsPage.ResultData.EventData {
 				sdbKey := fmt.Sprintf(sdbKeyFormats[attendanceType], u.SongkickUsername, songkickEvent.ID)
 
@@ -147,30 +150,40 @@ func postToSlack(username string, attendanceType string, songkickEvent songkick.
 
 	title := songkickEvent.DisplayName
 
-	fields := []*slack.AttachmentField{}
+	attachment := slack.Attachment{Fallback: fallback,
+		Title:     title,
+		TitleLink: songkickEvent.URI,
+		Color:     songkick.Pink}
 
-	if songkickEvent.Type == "Festival" {
-		lineup := slack.AttachmentField{
-			Title: "Line-up",
-			Value: songkick.FormatLineup(songkickEvent.PerformanceData),
-			Short: false}
-		fields = append(fields, &lineup)
-	}
-
-	fields = append(fields, &slack.AttachmentField{
+	attachmentFields := []*slack.AttachmentField{}
+	attachmentFields = append(attachmentFields, &slack.AttachmentField{
 		Title: "Location",
 		Value: songkick.FormatLocation(songkickEvent),
 		Short: true})
 
+	if songkickEvent.Type == songkick.EventTypeFestival {
+		lineup := slack.AttachmentField{
+			Title: "Line-up",
+			Value: songkick.FormatLineup(songkickEvent.PerformanceData),
+			Short: false}
+		attachmentFields = append(attachmentFields, &lineup)
+	}
+
+	if len(songkickEvent.PerformanceData) > 0 {
+		firstArtist := songkickEvent.PerformanceData[0].ArtistData
+		if len(firstArtist.Identifiers) > 0 {
+			imageURI := lastfm.GetImageByMbid(firstArtist.Identifiers[0].MusicBrainzId)
+			if len(imageURI) > 0 {
+				attachment.ThumbURL = imageURI
+			}
+		}
+	}
+
+	attachment.Fields = attachmentFields
+
 	err := slackClient.ChatPostMessage(slackChannel.Id, message, &slack.ChatPostMessageOpt{
-		Username: username,
-		Attachments: []*slack.Attachment{
-			{
-				Fallback:  fallback,
-				Title:     title,
-				TitleLink: songkickEvent.URI,
-				Color:     songkick.Pink,
-				Fields:    fields}},
+		Username:    username,
+		Attachments: []*slack.Attachment{&attachment},
 	})
 
 	if err != nil {

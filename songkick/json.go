@@ -1,7 +1,12 @@
 package songkick
 
+type Identifier struct {
+	MusicBrainzId string `json:"mbid"`
+}
+
 type Artist struct {
-	DisplayName string `json:"displayName"`
+	DisplayName string       `json:"displayName"`
+	Identifiers []Identifier `json:"identifier"`
 }
 
 type Performance struct {

@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	EventTypeFestival  = "Festival"
 	AttendanceImGoing  = "im_going"
 	AttendanceIMightGo = "i_might_go"
 	Pink               = "#f80046"
